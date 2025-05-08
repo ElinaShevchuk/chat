@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Чат</title>
-  <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Чат</title>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-  <div class="chat-container">
+<div class="chat-container">
     <div class="chat-header">
-      <button>Настройки</button>
-      <button>Выйти</button>
+        <button>Настройки</button>
+        <button>Выйти</button>
     </div>
-    
+
     <div class="chat-messages" id="messages-container">
-      <!-- Сообщения будут добавляться динамически -->
+        <!-- Сообщения будут добавляться динамически -->
     </div>
 
     <!-- Шаблон для сообщений -->
     <template id="message-template">
-      <div class="message">
-        <span class="text"></span>
-        <span class="time"></span>
-      </div>
+        <div class="message">
+            <span class="text"></span>
+            <span class="time"></span>
+        </div>
     </template>
 
     <!-- Форма ввода сообщения -->
     <form class="message-form" id="message-form">
-      <input id="message-input" type="text" name="message" placeholder="сообщение.." required>
-      <button type="submit">→</button>
+        <input id="message-input" type="text" name="message" placeholder="сообщение.." required>
+        <button type="submit">→</button>
     </form>
-  </div>
-  <script type="module" src="../dist/main.js"></script>
+</div>
+<script src="../dist/main.js"></script>
+</body>
 </html>
