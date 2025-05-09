@@ -1,4 +1,4 @@
-type DOMElements = {
+interface DOMElements {
     messageTemplate: HTMLTemplateElement | null;
     messageForm: HTMLFormElement | null;
     messagesContainer: HTMLElement | null;
@@ -22,24 +22,11 @@ class DOMHandler {
     }
 
     createMessage(text: string): HTMLElement {
-        // Проверяем, что шаблон инициализирован
-        if (!this.elements.messageTemplate) {
-            throw new Error('Message template not initialized');
-        }
-        const template = this.elements.messageTemplate.content;
-        const newMessage = template.cloneNode(true) as DocumentFragment;
-        // Предполагаем, что в шаблоне есть элемент с классом .message-text
+        const template = this.elements.messageTemplate?.content;
+        const newMessage = template?.cloneNode(true) as DocumentFragment;
         const messageElement = newMessage.querySelector('.text') as HTMLElement;
-        if (!messageElement) {
-            throw new Error('Message text element not found in template');
-        }
-        // Устанавливаем текст сообщения
         messageElement.textContent = text;
-        // Возвращаем первый дочерний элемент (само сообщение)
         return newMessage.firstElementChild as HTMLElement;
-
-        //  const container = document.querySelector('.messages-container');
-        //  container?.appendChild(newMessage);
     }
 
     renderMessages() {
@@ -53,19 +40,14 @@ class ChatApp {
 
     constructor() {
         this.dom = new DOMHandler();
-        console.log('1')
         this.init();
     }
 
     init() {
         document.addEventListener('DOMContentLoaded', () => {
-            console.log(2)
             this.dom.initElements();
-            console.log(3)
-            this.loadMessages(); // Загружаем сообщения при старте
-            console.log(4)
+            this.loadMessages(); 
             this.setupEventListeners();
-            console.log(5)
         });
     }
 
@@ -94,10 +76,9 @@ class ChatApp {
             const formData = new FormData(form); //получаем дату
             const messageText = formData.get('message')?.toString().trim();
             if (messageText) {
-                // Добавляем сообщение с timestamp
                 const newMessage = {
                     text: messageText,
-                    timestamp: Date.now()
+                    timestamp: Date.now() //перевести в норм формат и добавить отображение
                 };
                 this.messages.push(newMessage);
                 this.addToLocalStorage();
