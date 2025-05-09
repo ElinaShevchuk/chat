@@ -1,42 +1,8 @@
-interface DOMElements {
-    messageTemplate: HTMLTemplateElement | null;
-    messageForm: HTMLFormElement | null;
-    messagesContainer: HTMLElement | null;
-}
-
-class DOMHandler {
-    elements: DOMElements;
-
-    constructor() {
-        this.elements = {
-            messageTemplate: null,
-            messageForm: null,
-            messagesContainer: null,
-        };
-    }
-
-    initElements(): void {
-        this.elements.messageTemplate = document.getElementById('message-template') as HTMLTemplateElement;
-        this.elements.messageForm = document.getElementById('message-form') as HTMLFormElement;
-        this.elements.messagesContainer = document.getElementById('messages-container') as HTMLElement;
-    }
-
-    createMessage(text: string): HTMLElement {
-        const template = this.elements.messageTemplate?.content;
-        const newMessage = template?.cloneNode(true) as DocumentFragment;
-        const messageElement = newMessage.querySelector('.text') as HTMLElement;
-        messageElement.textContent = text;
-        return newMessage.firstElementChild as HTMLElement;
-    }
-
-    renderMessages() {
-
-    }
-}
+import { DOMHandler } from "./DOMElements.js";
 
 class ChatApp {
     private dom: DOMHandler;
-    private messages: Array<{ text: string, timestamp: number }> = [];
+    private messages: Array<{ text: string, timestamp: string }> = [];
 
     constructor() {
         this.dom = new DOMHandler();
@@ -56,41 +22,70 @@ class ChatApp {
     }
 
     loadMessages() {
-        const savedMessages = localStorage.getItem('chatMessages');
+        const savedMessages = this.getSavedMessages();
         if (savedMessages) {
-            this.messages = JSON.parse(savedMessages);
-            this.messages.forEach(message => {
-                const messageDOM = this.dom.createMessage(message.text);
-                this.dom.elements.messagesContainer?.appendChild(messageDOM);
-            });
+            this.messages = savedMessages;
+            this.renderSavedMessages();
         }
+    }
+
+    getSavedMessages(): Array<{ text: string, timestamp: string }> | null {
+        const savedMessages = localStorage.getItem('chatMessages');
+        console.log(savedMessages);
+        return savedMessages ? JSON.parse(savedMessages) : null;
+    }
+
+    renderSavedMessages() {
+        this.messages.forEach(message => {
+            const messageDOM = this.dom.createMessage(message.text, message.timestamp);
+            this.dom.elements.messagesContainer?.appendChild(messageDOM);
+        });
     }
 
     setupEventListeners() {
         const form = this.dom.elements.messageForm;
-        console.log(form)
-        form?.addEventListener('submit', (event) => {
-            console.log(event);
-            event.preventDefault();
-            console.log(event);
-            const formData = new FormData(form); //получаем дату
-            const messageText = formData.get('message')?.toString().trim();
-            if (messageText) {
-                const newMessage = {
-                    text: messageText,
-                    timestamp: Date.now() //перевести в норм формат и добавить отображение
-                };
-                this.messages.push(newMessage);
-                this.addToLocalStorage();
-                // Создаем и отображаем сообщение
-                const newMessageDOM = this.dom.createMessage(messageText);
-                this.dom.elements.messagesContainer?.appendChild(newMessageDOM);
-                // Очищаем поле ввода
-                form.reset();
-            }
+        form?.addEventListener('submit', this.handleFormSubmit.bind(this));
+    }
+
+    handleFormSubmit(event: Event) {
+        event.preventDefault();
+        const form = event.target as HTMLFormElement;
+        const messageText = this.getFormMessage(form);
+        
+        if (messageText) {
+            this.addNewMessage(messageText);
+            this.renderNewMessage(messageText);
+            form.reset();
         }
-        );
+    }
+
+    getFormMessage(form: HTMLFormElement): string | null {
+        const formData = new FormData(form);
+        return formData.get('message')?.toString().trim() || null;
+    }
+
+    addNewMessage(text: string) {
+        const newMessage = {
+            text: text,
+            timestamp: this.getDate()
+        };
+        this.messages.push(newMessage);
+        this.addToLocalStorage();
+    }
+
+    renderNewMessage(text: string) {
+        const newMessageDOM = this.dom.createMessage(text, this.getDate());
+        this.dom.elements.messagesContainer?.appendChild(newMessageDOM);
+    }
+
+    getDate(): string {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        console.log(`${hours}:${minutes}`);
+        return `${hours}:${minutes}`;
     }
 }
 
 const app = new ChatApp();
+

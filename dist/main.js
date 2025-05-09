@@ -1,28 +1,4 @@
-"use strict";
-class DOMHandler {
-    constructor() {
-        this.elements = {
-            messageTemplate: null,
-            messageForm: null,
-            messagesContainer: null,
-        };
-    }
-    initElements() {
-        this.elements.messageTemplate = document.getElementById('message-template');
-        this.elements.messageForm = document.getElementById('message-form');
-        this.elements.messagesContainer = document.getElementById('messages-container');
-    }
-    createMessage(text) {
-        var _a;
-        const template = (_a = this.elements.messageTemplate) === null || _a === void 0 ? void 0 : _a.content;
-        const newMessage = template === null || template === void 0 ? void 0 : template.cloneNode(true);
-        const messageElement = newMessage.querySelector('.text');
-        messageElement.textContent = text;
-        return newMessage.firstElementChild;
-    }
-    renderMessages() {
-    }
-}
+import { DOMHandler } from "./DOMElements.js";
 class ChatApp {
     constructor() {
         this.messages = [];
@@ -40,40 +16,69 @@ class ChatApp {
         localStorage.setItem('chatMessages', JSON.stringify(this.messages));
     }
     loadMessages() {
-        const savedMessages = localStorage.getItem('chatMessages');
+        const savedMessages = this.getSavedMessages();
         if (savedMessages) {
-            this.messages = JSON.parse(savedMessages);
-            this.messages.forEach(message => {
-                var _a;
-                const messageDOM = this.dom.createMessage(message.text);
-                (_a = this.dom.elements.messagesContainer) === null || _a === void 0 ? void 0 : _a.appendChild(messageDOM);
-            });
+            this.messages = savedMessages;
+            this.renderSavedMessages();
         }
+    }
+    getSavedMessages() {
+        const savedMessages = localStorage.getItem('chatMessages');
+        console.log(savedMessages);
+        return savedMessages ? JSON.parse(savedMessages) : null;
+    }
+    renderSavedMessages() {
+        this.messages.forEach(message => {
+            var _a;
+            const messageDOM = this.dom.createMessage(message.text, message.timestamp);
+            (_a = this.dom.elements.messagesContainer) === null || _a === void 0 ? void 0 : _a.appendChild(messageDOM);
+        });
     }
     setupEventListeners() {
         const form = this.dom.elements.messageForm;
-        console.log(form);
-        form === null || form === void 0 ? void 0 : form.addEventListener('submit', (event) => {
-            var _a, _b;
-            console.log(event);
-            event.preventDefault();
-            console.log(event);
-            const formData = new FormData(form); //получаем дату
-            const messageText = (_a = formData.get('message')) === null || _a === void 0 ? void 0 : _a.toString().trim();
-            if (messageText) {
-                const newMessage = {
-                    text: messageText,
-                    timestamp: Date.now() //перевести в норм формат и добавить отображение
-                };
-                this.messages.push(newMessage);
-                this.addToLocalStorage();
-                // Создаем и отображаем сообщение
-                const newMessageDOM = this.dom.createMessage(messageText);
-                (_b = this.dom.elements.messagesContainer) === null || _b === void 0 ? void 0 : _b.appendChild(newMessageDOM);
-                // Очищаем поле ввода
-                form.reset();
-            }
-        });
+        form === null || form === void 0 ? void 0 : form.addEventListener('submit', this.handleFormSubmit.bind(this));
+    }
+    handleFormSubmit(event) {
+        event.preventDefault();
+        const form = event.target;
+        const messageText = this.getFormMessage(form);
+        if (messageText) {
+            this.addNewMessage(messageText);
+            this.renderNewMessage(messageText);
+            form.reset();
+        }
+    }
+    getFormMessage(form) {
+        var _a;
+        const formData = new FormData(form);
+        return ((_a = formData.get('message')) === null || _a === void 0 ? void 0 : _a.toString().trim()) || null;
+    }
+    addNewMessage(text) {
+        const newMessage = {
+            text: text,
+            timestamp: this.getDate()
+        };
+        this.messages.push(newMessage);
+        this.addToLocalStorage();
+    }
+    renderNewMessage(text) {
+        var _a;
+        const newMessageDOM = this.dom.createMessage(text, this.getDate());
+        (_a = this.dom.elements.messagesContainer) === null || _a === void 0 ? void 0 : _a.appendChild(newMessageDOM);
+    }
+    getDate() {
+        const now = new Date();
+        const hours = now.getHours().toString().padStart(2, '0');
+        const minutes = now.getMinutes().toString().padStart(2, '0');
+        console.log(`${hours}:${minutes}`);
+        return `${hours}:${minutes}`;
+    }
+    clearMessages() {
+        localStorage.removeItem('chatMessages');
+        this.messages = [];
+        if (this.dom.elements.messagesContainer) {
+            this.dom.elements.messagesContainer.innerHTML = '';
+        }
     }
 }
 const app = new ChatApp();

@@ -12,25 +12,19 @@
         <button>Настройки</button>
         <button>Выйти</button>
     </div>
-
     <div class="chat-messages" id="messages-container">
-        <!-- Сообщения будут добавляться динамически -->
     </div>
-
-    <!-- Шаблон для сообщений -->
     <template id="message-template">
         <div class="message">
             <span class="text"></span>
             <span class="time"></span>
         </div>
     </template>
-
-    <!-- Форма ввода сообщения -->
-    <form class="message-form" id="message-form">
+    <form class="chat-form" id="message-form">
         <input id="message-input" type="text" name="message" placeholder="сообщение.." required>
         <button type="submit">→</button>
     </form>
 </div>
-<script src="../dist/main.js"></script>
+<script type="module" src="../dist/main.js"></script>
 </body>
 </html>
