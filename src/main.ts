@@ -1,11 +1,15 @@
 import { DOMHandler } from "./DOMElements.js";
+import { LocalStorageManager } from "./localStorage.js";
+import { Message } from "./interfaces.js";
 
 class ChatApp {
     private dom: DOMHandler;
-    private messages: Array<{ text: string, timestamp: string }> = [];
+    private storage: LocalStorageManager;
+    private messages: Array<Message> = [];
 
     constructor() {
         this.dom = new DOMHandler();
+        this.storage = new LocalStorageManager();
         this.init();
     }
 
@@ -17,29 +21,12 @@ class ChatApp {
         });
     }
 
-    addToLocalStorage() {
-        localStorage.setItem('chatMessages', JSON.stringify(this.messages));
-    }
-
     loadMessages() {
-        const savedMessages = this.getSavedMessages();
+        const savedMessages = this.storage.getSavedMessages();
         if (savedMessages) {
             this.messages = savedMessages;
-            this.renderSavedMessages();
+            this.dom.renderSavedMessages(this.messages);
         }
-    }
-
-    getSavedMessages(): Array<{ text: string, timestamp: string }> | null {
-        const savedMessages = localStorage.getItem('chatMessages');
-        console.log(savedMessages);
-        return savedMessages ? JSON.parse(savedMessages) : null;
-    }
-
-    renderSavedMessages() {
-        this.messages.forEach(message => {
-            const messageDOM = this.dom.createMessage(message.text, message.timestamp);
-            this.dom.elements.messagesContainer?.appendChild(messageDOM);
-        });
     }
 
     setupEventListeners() {
@@ -54,7 +41,7 @@ class ChatApp {
         
         if (messageText) {
             this.addNewMessage(messageText);
-            this.renderNewMessage(messageText);
+            this.dom.renderNewMessage(messageText, this.getDate());
             form.reset();
         }
     }
@@ -70,12 +57,7 @@ class ChatApp {
             timestamp: this.getDate()
         };
         this.messages.push(newMessage);
-        this.addToLocalStorage();
-    }
-
-    renderNewMessage(text: string) {
-        const newMessageDOM = this.dom.createMessage(text, this.getDate());
-        this.dom.elements.messagesContainer?.appendChild(newMessageDOM);
+        this.storage.addToLocalStorage(this.messages);
     }
 
     getDate(): string {

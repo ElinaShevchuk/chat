@@ -1,8 +1,4 @@
-interface DOMElements {
-    messageTemplate: HTMLTemplateElement | null;
-    messageForm: HTMLFormElement | null;
-    messagesContainer: HTMLElement | null;
-}
+import { Message, DOMElements } from "./interfaces";
 
 export class DOMHandler {
     elements: DOMElements;
@@ -31,7 +27,16 @@ export class DOMHandler {
         return newMessage.firstElementChild as HTMLElement;
     }
 
-    renderMessages() {
-
+    renderNewMessage(text: string, date: string) {
+        const newMessageDOM = this.createMessage(text, date);
+        this.elements.messagesContainer?.appendChild(newMessageDOM);
     }
+
+    renderSavedMessages(messages: Array<Message>) {
+        messages.forEach(message => {
+            const messageDOM = this.createMessage(message.text, message.timestamp);
+            this.elements.messagesContainer?.appendChild(messageDOM);
+        });
+    }
+
 }

@@ -1,3 +1,8 @@
+// interface DOMElements {
+//     messageTemplate: HTMLTemplateElement | null;
+//     messageForm: HTMLFormElement | null;
+//     messagesContainer: HTMLElement | null;
+// }
 export class DOMHandler {
     constructor() {
         this.elements = {
@@ -21,6 +26,16 @@ export class DOMHandler {
         messageTime.textContent = time;
         return newMessage.firstElementChild;
     }
-    renderMessages() {
+    renderNewMessage(text, date) {
+        var _a;
+        const newMessageDOM = this.createMessage(text, date);
+        (_a = this.elements.messagesContainer) === null || _a === void 0 ? void 0 : _a.appendChild(newMessageDOM);
+    }
+    renderSavedMessages(messages) {
+        messages.forEach(message => {
+            var _a;
+            const messageDOM = this.createMessage(message.text, message.timestamp);
+            (_a = this.elements.messagesContainer) === null || _a === void 0 ? void 0 : _a.appendChild(messageDOM);
+        });
     }
 }
