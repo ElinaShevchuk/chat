@@ -1,6 +1,6 @@
-import { DOMHandler } from "./DOMElements.js";
-import { LocalStorageManager } from "./localStorage.js";
-import { Message } from "./interfaces.js";
+import { DOMHandler } from "./DOMElements";
+import { LocalStorageManager } from "./localStorage";
+import { Message } from "./interfaces";
 
 class ChatApp {
     private dom: DOMHandler;
@@ -64,10 +64,8 @@ class ChatApp {
         const now = new Date();
         const hours = now.getHours().toString().padStart(2, '0');
         const minutes = now.getMinutes().toString().padStart(2, '0');
-        console.log(`${hours}:${minutes}`);
         return `${hours}:${minutes}`;
     }
 }
 
 const app = new ChatApp();
-
