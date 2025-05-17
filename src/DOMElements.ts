@@ -21,11 +21,13 @@ export class DOMHandler {
 
     initPopupElements() {
         this.elements.inputUserEmail = document.getElementById('email-input') as HTMLInputElement;
-        this.elements.buttonSendVerificationCode = document.getElementById('send-code-button"') as HTMLButtonElement;
+        this.elements.buttonSendVerificationCode = document.querySelector('.send-code-button') as HTMLButtonElement;
     }
 
     openPopup(popupId: string) {
         const popupElelement = document.getElementById(popupId);
+        console.log(popupElelement);
+        console.log( document.getElementById('auth-popup'))
         if (popupElelement) {
             popupElelement.style.display = "block";
         }

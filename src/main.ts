@@ -14,11 +14,11 @@ class ChatApp {
         this.init();
     }
 
-    init() {
-        document.addEventListener('DOMContentLoaded', () => {
+    async init() {
+        document.addEventListener('DOMContentLoaded', async () => {
             this.dom.initElements();
-            this.loadMessages();  
-            this.loadPopups();
+            this.loadMessages();
+            await this.loadPopups();
             this.dom.initPopupElements();
             this.setupEventListeners();
             this.dom.openPopup('auth-popup');
@@ -33,29 +33,29 @@ class ChatApp {
         }
     }
 
-    loadPopups() {
-        const paths = ['/auth-popup.html', '/code-verification-popup.html', '/name-input-popup.html'];
-        paths.forEach((path) => {
-            fetch(path)
-            .then(response => response.text())
-            .then(html => {
-                document.body.insertAdjacentHTML('beforeend', html);
-            });
-        })                    
+    async loadPopups() {
+        const paths = ['/auth-popup.html'
+            // , '/code-verification-popup.html', '/name-input-popup.html'
+        ];
+        for (const path of paths) {
+            const response = await fetch(path);
+            const popup = await response.text();
+            document.body.insertAdjacentHTML('beforeend', popup);
+        }
     }
 
     setupEventListeners() {
         const form = this.dom.elements.messageForm;
         form?.addEventListener('submit', this.handleFormSubmit.bind(this));
-        this.dom.elements.buttonSendVerificationCode?.addEventListener('click', this.handleSendVerificationCode);
-
+        console.log(this.dom.elements.buttonSendVerificationCode);
+        this.dom.elements.buttonSendVerificationCode?.addEventListener('click', this.handleSendVerificationCode.bind(this));
     }
 
     handleFormSubmit(event: Event) {
         event.preventDefault();
         const form = event.target as HTMLFormElement;
         const messageText = this.dom.getFormMessage(form);
-        
+
         if (messageText) {
             this.addNewMessage(messageText);
             this.dom.renderNewMessage(messageText, this.getDate());
@@ -63,10 +63,21 @@ class ChatApp {
         }
     }
 
-    handleSendVerificationCode() {
+    async handleSendVerificationCode() {
         const userEmail = this.dom.getUserEmail();
+        console.log(userEmail);
         if (userEmail) {
-            sendVerificationCode(userEmail);
+            try {
+                const result = await sendVerificationCode(userEmail);
+                console.log('Verification code sent:', result);
+                // Здесь можно добавить логику для обработки успешной отправки
+            } catch (error) {
+                console.error('Failed to send verification code:', error);
+                // Здесь можно добавить логику для обработки ошибки
+            }
+        } else {
+            console.error('Email is required');
+            // Здесь можно добавить логику для отображения ошибки пользователю
         }
     }
 
@@ -87,7 +98,7 @@ class ChatApp {
     }
 
     checkAuth() {
-        
+
     }
 }
 
