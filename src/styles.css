@@ -112,6 +112,10 @@ body {
   }
 }
 
+.popup {
+  display: none;
+}
+
 .popup-container {
   position: fixed;
   top: 0;
@@ -216,4 +220,8 @@ body {
   padding: 6px 12px;
   font-size: 18px;
   font-weight: bold;
+}
+
+.popup-container.hidden {
+  display: none;
 }

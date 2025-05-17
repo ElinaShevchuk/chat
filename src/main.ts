@@ -1,6 +1,7 @@
 import { DOMHandler } from "./DOMElements";
 import { LocalStorageManager } from "./localStorage";
 import { Message } from "./interfaces";
+import { sendVerificationCode } from "./api/authorization";
 
 class ChatApp {
     private dom: DOMHandler;
@@ -16,8 +17,11 @@ class ChatApp {
     init() {
         document.addEventListener('DOMContentLoaded', () => {
             this.dom.initElements();
-            this.loadMessages(); 
+            this.loadMessages();  
+            this.loadPopups();
+            this.dom.initPopupElements();
             this.setupEventListeners();
+            this.dom.openPopup('auth-popup');
         });
     }
 
@@ -29,15 +33,28 @@ class ChatApp {
         }
     }
 
+    loadPopups() {
+        const paths = ['/auth-popup.html', '/code-verification-popup.html', '/name-input-popup.html'];
+        paths.forEach((path) => {
+            fetch(path)
+            .then(response => response.text())
+            .then(html => {
+                document.body.insertAdjacentHTML('beforeend', html);
+            });
+        })                    
+    }
+
     setupEventListeners() {
         const form = this.dom.elements.messageForm;
         form?.addEventListener('submit', this.handleFormSubmit.bind(this));
+        this.dom.elements.buttonSendVerificationCode?.addEventListener('click', this.handleSendVerificationCode);
+
     }
 
     handleFormSubmit(event: Event) {
         event.preventDefault();
         const form = event.target as HTMLFormElement;
-        const messageText = this.getFormMessage(form);
+        const messageText = this.dom.getFormMessage(form);
         
         if (messageText) {
             this.addNewMessage(messageText);
@@ -46,9 +63,11 @@ class ChatApp {
         }
     }
 
-    getFormMessage(form: HTMLFormElement): string | null {
-        const formData = new FormData(form);
-        return formData.get('message')?.toString().trim() || null;
+    handleSendVerificationCode() {
+        const userEmail = this.dom.getUserEmail();
+        if (userEmail) {
+            sendVerificationCode(userEmail);
+        }
     }
 
     addNewMessage(text: string) {
@@ -65,6 +84,10 @@ class ChatApp {
         const hours = now.getHours().toString().padStart(2, '0');
         const minutes = now.getMinutes().toString().padStart(2, '0');
         return `${hours}:${minutes}`;
+    }
+
+    checkAuth() {
+        
     }
 }
 

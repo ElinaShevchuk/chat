@@ -8,13 +8,34 @@ export class DOMHandler {
             messageTemplate: null,
             messageForm: null,
             messagesContainer: null,
+            inputUserEmail: null,
+            buttonSendVerificationCode: null,
         };
     }
 
     initElements(): void {
         this.elements.messageTemplate = document.getElementById('message-template') as HTMLTemplateElement;
         this.elements.messageForm = document.getElementById('message-form') as HTMLFormElement;
-        this.elements.messagesContainer = document.getElementById('messages-container') as HTMLElement;
+        this.elements.messagesContainer = document.getElementById('messages-container') as HTMLElement;    
+    }
+
+    initPopupElements() {
+        this.elements.inputUserEmail = document.getElementById('email-input') as HTMLInputElement;
+        this.elements.buttonSendVerificationCode = document.getElementById('send-code-button"') as HTMLButtonElement;
+    }
+
+    openPopup(popupId: string) {
+        const popupElelement = document.getElementById(popupId);
+        if (popupElelement) {
+            popupElelement.style.display = "block";
+        }
+    }
+
+    closePopup(popupId: string) {
+        const popupElelement = document.getElementById(popupId);
+        if (popupElelement) {
+            popupElelement.style.display = "none";
+        }
     }
 
     createMessage(text: string, time: string): HTMLElement {
@@ -39,4 +60,13 @@ export class DOMHandler {
         });
     }
 
+    getFormMessage(form: HTMLFormElement): string | null { 
+        const formData = new FormData(form);
+        return formData.get('message')?.toString().trim() || null;
+    }
+
+    getUserEmail() { 
+        const userEmail = this.elements.inputUserEmail;
+        return userEmail?.value
+    }
 }
