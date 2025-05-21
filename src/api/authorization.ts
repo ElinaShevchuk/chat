@@ -8,7 +8,6 @@ export async function sendVerificationCode(userEmail: string) {
             }, 
             body: JSON.stringify({email: userEmail})
         });
-        
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }

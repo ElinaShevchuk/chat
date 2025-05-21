@@ -9,4 +9,7 @@ export interface DOMElements {
     messagesContainer: HTMLElement | null;
     inputUserEmail: HTMLInputElement | null;
     buttonSendVerificationCode: HTMLButtonElement | null;
+    buttonEnterCode: HTMLButtonElement | null,
+    codeForm: HTMLFormElement | null,
+    usernameForm: HTMLFormElement | null,
 }

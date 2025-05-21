@@ -2,6 +2,8 @@ import { DOMHandler } from "./DOMElements";
 import { LocalStorageManager } from "./localStorage";
 import { Message } from "./interfaces";
 import { sendVerificationCode } from "./api/authorization";
+import { getUserData } from "./api/getUserData";
+import { changeUsername } from "./api/changeUserName";
 
 class ChatApp {
     private dom: DOMHandler;
@@ -35,7 +37,8 @@ class ChatApp {
 
     async loadPopups() {
         const paths = ['/auth-popup.html'
-            // , '/code-verification-popup.html', '/name-input-popup.html'
+            , '/code-verification-popup.html'
+            // , '/name-input-popup.html'
         ];
         for (const path of paths) {
             const response = await fetch(path);
@@ -45,10 +48,11 @@ class ChatApp {
     }
 
     setupEventListeners() {
-        const form = this.dom.elements.messageForm;
-        form?.addEventListener('submit', this.handleFormSubmit.bind(this));
-        console.log(this.dom.elements.buttonSendVerificationCode);
+        this.dom.elements.messageForm?.addEventListener('submit', this.handleFormSubmit.bind(this));
+        this.dom.elements.codeForm?.addEventListener('submit', this.handleConfirmCodeForm.bind(this));
+        this.dom.elements.usernameForm?.addEventListener('submit', this.handleUsernameUpdate.bind(this));
         this.dom.elements.buttonSendVerificationCode?.addEventListener('click', this.handleSendVerificationCode.bind(this));
+        this.dom.elements.buttonEnterCode?.addEventListener('click', this.enterCodeClickHandler.bind(this));
     }
 
     handleFormSubmit(event: Event) {
@@ -78,6 +82,29 @@ class ChatApp {
         } else {
             console.error('Email is required');
             // Здесь можно добавить логику для отображения ошибки пользователю
+        }
+    }
+
+    enterCodeClickHandler() { //новая функция
+        this.dom.closePopup('auth-popup');
+        this.dom.openPopup('code-verification-popup');
+    }
+
+    handleConfirmCodeForm(event: Event) {
+        event.preventDefault();
+        const form = event.target as HTMLFormElement;
+        const token = this.dom.getFormMessage(form);
+        if (token) {
+            getUserData(token);
+        }
+    }
+
+    handleUsernameUpdate(event: Event) {
+        event.preventDefault();
+        const form = event.target as HTMLFormElement;
+        const newName = this.dom.getFormMessage(form);
+        if (newName) {
+            changeUsername(newName);
         }
     }
 

@@ -10,6 +10,9 @@ export class DOMHandler {
             messagesContainer: null,
             inputUserEmail: null,
             buttonSendVerificationCode: null,
+            buttonEnterCode: null,
+            codeForm: null,
+            usernameForm: null,
         };
     }
 
@@ -22,12 +25,13 @@ export class DOMHandler {
     initPopupElements() {
         this.elements.inputUserEmail = document.getElementById('email-input') as HTMLInputElement;
         this.elements.buttonSendVerificationCode = document.querySelector('.send-code-button') as HTMLButtonElement;
+        this.elements.buttonEnterCode = document.querySelector('.enter-code-button') as HTMLButtonElement;
+        this.elements.codeForm = document.getElementById('code-form') as HTMLFormElement;
+        this.elements.usernameForm = document.getElementById('name-form') as HTMLFormElement;
     }
 
     openPopup(popupId: string) {
         const popupElelement = document.getElementById(popupId);
-        console.log(popupElelement);
-        console.log( document.getElementById('auth-popup'))
         if (popupElelement) {
             popupElelement.style.display = "block";
         }
@@ -71,4 +75,4 @@ export class DOMHandler {
         const userEmail = this.elements.inputUserEmail;
         return userEmail?.value
     }
-}
+} 
