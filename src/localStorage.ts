@@ -5,7 +5,6 @@ export class LocalStorageManager {
     
     getSavedMessages(): Array<{ text: string, timestamp: string }> | null {
         const savedMessages = localStorage.getItem('chatMessages');
-        console.log(savedMessages);
         return savedMessages ? JSON.parse(savedMessages) : null;
     }
 }

@@ -4,6 +4,7 @@ import { Message } from "./interfaces";
 import { sendVerificationCode } from "./api/authorization";
 import { getUserData } from "./api/getUserData";
 import { changeUsername } from "./api/changeUserName";
+import Cookies from 'js-cookie';
 
 class ChatApp {
     private dom: DOMHandler;
@@ -38,7 +39,7 @@ class ChatApp {
     async loadPopups() {
         const paths = ['/auth-popup.html'
             , '/code-verification-popup.html'
-            // , '/name-input-popup.html'
+            , '/name-input-popup.html'
         ];
         for (const path of paths) {
             const response = await fetch(path);
@@ -53,13 +54,13 @@ class ChatApp {
         this.dom.elements.usernameForm?.addEventListener('submit', this.handleUsernameUpdate.bind(this));
         this.dom.elements.buttonSendVerificationCode?.addEventListener('click', this.handleSendVerificationCode.bind(this));
         this.dom.elements.buttonEnterCode?.addEventListener('click', this.enterCodeClickHandler.bind(this));
+        this.dom.elements.buttonChangeUsername?.addEventListener('click', this.toggleUsernameEditor.bind(this));
     }
 
     handleFormSubmit(event: Event) {
         event.preventDefault();
         const form = event.target as HTMLFormElement;
         const messageText = this.dom.getFormMessage(form);
-
         if (messageText) {
             this.addNewMessage(messageText);
             this.dom.renderNewMessage(messageText, this.getDate());
@@ -74,18 +75,15 @@ class ChatApp {
             try {
                 const result = await sendVerificationCode(userEmail);
                 console.log('Verification code sent:', result);
-                // Здесь можно добавить логику для обработки успешной отправки
             } catch (error) {
                 console.error('Failed to send verification code:', error);
-                // Здесь можно добавить логику для обработки ошибки
             }
         } else {
             console.error('Email is required');
-            // Здесь можно добавить логику для отображения ошибки пользователю
         }
     }
 
-    enterCodeClickHandler() { //новая функция
+    enterCodeClickHandler() { 
         this.dom.closePopup('auth-popup');
         this.dom.openPopup('code-verification-popup');
     }
@@ -96,7 +94,9 @@ class ChatApp {
         const token = this.dom.getFormMessage(form);
         if (token) {
             getUserData(token);
+            Cookies.set('token', token);
         }
+        this.dom.closePopup("code-verification-popup");
     }
 
     handleUsernameUpdate(event: Event) {
@@ -104,8 +104,19 @@ class ChatApp {
         const form = event.target as HTMLFormElement;
         const newName = this.dom.getFormMessage(form);
         if (newName) {
-            changeUsername(newName);
+            const token = Cookies.get('token');
+            if (token) {
+                changeUsername(newName, token);
+                Cookies.set('username', newName);
+                getUserData(token); //проверка
+            }
         }
+        this.dom.closePopup('name-input-popup');
+    }
+
+    toggleUsernameEditor() {
+        this.dom.openPopup('name-input-popup');
+        //добавить закрытие по нажатию на область, возможно, сделать закрытие здесь же
     }
 
     addNewMessage(text: string) {

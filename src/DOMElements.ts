@@ -8,6 +8,7 @@ export class DOMHandler {
             messageTemplate: null,
             messageForm: null,
             messagesContainer: null,
+            buttonChangeUsername: null,
             inputUserEmail: null,
             buttonSendVerificationCode: null,
             buttonEnterCode: null,
@@ -20,6 +21,7 @@ export class DOMHandler {
         this.elements.messageTemplate = document.getElementById('message-template') as HTMLTemplateElement;
         this.elements.messageForm = document.getElementById('message-form') as HTMLFormElement;
         this.elements.messagesContainer = document.getElementById('messages-container') as HTMLElement;    
+        this.elements.buttonChangeUsername = document.getElementById('change-username-button') as HTMLButtonElement;
     }
 
     initPopupElements() {

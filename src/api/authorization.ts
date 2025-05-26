@@ -11,10 +11,7 @@ export async function sendVerificationCode(userEmail: string) {
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
-        // const data = await response.json();
         console.log(response.text());
-        // console.log('Server response:', data);
-        // return data;
     } catch (error) {
         console.error('Error sending verification code:', error);
         throw error; // Пробрасываем ошибку дальше для обработки в компоненте
