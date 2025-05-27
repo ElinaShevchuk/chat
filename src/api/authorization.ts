@@ -17,5 +17,3 @@ export async function sendVerificationCode(userEmail: string) {
         throw error; // Пробрасываем ошибку дальше для обработки в компоненте
     }
 }
-
-"{\"email\":\"ugsearmany@gmail.com\",\"name\":\"ugsearmany@gmail.com\"}"

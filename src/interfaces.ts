@@ -14,3 +14,10 @@ export interface DOMElements {
     codeForm: HTMLFormElement | null,
     usernameForm: HTMLFormElement | null,
 }
+
+export interface UserData {
+    id: string, 
+    name: string,
+    email: string,
+    token: string,
+}

@@ -6,11 +6,9 @@ export async function changeUsername(newName: string, token: string) {
             'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({name: newName})
-    });
-    
+    }); 
     if (!response.ok) {
         throw new Error(`HTTP error! status: ${response.status}`);
     }
-    
     return await response.json();
 }

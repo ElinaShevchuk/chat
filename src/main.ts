@@ -1,9 +1,10 @@
 import { DOMHandler } from "./DOMElements";
 import { LocalStorageManager } from "./localStorage";
-import { Message } from "./interfaces";
+import { Message, UserData } from "./interfaces";
 import { sendVerificationCode } from "./api/authorization";
 import { getUserData } from "./api/getUserData";
 import { changeUsername } from "./api/changeUserName";
+import { updateUserData } from "./cookies"; 
 import Cookies from 'js-cookie';
 
 class ChatApp {
@@ -24,7 +25,7 @@ class ChatApp {
             await this.loadPopups();
             this.dom.initPopupElements();
             this.setupEventListeners();
-            this.dom.openPopup('auth-popup');
+            this.checkAuth();
         });
     }
 
@@ -37,9 +38,10 @@ class ChatApp {
     }
 
     async loadPopups() {
-        const paths = ['/auth-popup.html'
-            , '/code-verification-popup.html'
-            , '/name-input-popup.html'
+        const paths = [
+            '/auth-popup.html', 
+            '/code-verification-popup.html', 
+            '/name-input-popup.html',
         ];
         for (const path of paths) {
             const response = await fetch(path);
@@ -53,7 +55,7 @@ class ChatApp {
         this.dom.elements.codeForm?.addEventListener('submit', this.handleConfirmCodeForm.bind(this));
         this.dom.elements.usernameForm?.addEventListener('submit', this.handleUsernameUpdate.bind(this));
         this.dom.elements.buttonSendVerificationCode?.addEventListener('click', this.handleSendVerificationCode.bind(this));
-        this.dom.elements.buttonEnterCode?.addEventListener('click', this.enterCodeClickHandler.bind(this));
+        this.dom.elements.buttonEnterCode?.addEventListener('click', this.handleInputCode.bind(this));
         this.dom.elements.buttonChangeUsername?.addEventListener('click', this.toggleUsernameEditor.bind(this));
     }
 
@@ -70,7 +72,6 @@ class ChatApp {
 
     async handleSendVerificationCode() {
         const userEmail = this.dom.getUserEmail();
-        console.log(userEmail);
         if (userEmail) {
             try {
                 const result = await sendVerificationCode(userEmail);
@@ -83,32 +84,33 @@ class ChatApp {
         }
     }
 
-    enterCodeClickHandler() { 
+    handleInputCode() { 
         this.dom.closePopup('auth-popup');
         this.dom.openPopup('code-verification-popup');
     }
 
-    handleConfirmCodeForm(event: Event) {
+    async handleConfirmCodeForm(event: Event) {
         event.preventDefault();
         const form = event.target as HTMLFormElement;
         const token = this.dom.getFormMessage(form);
         if (token) {
-            getUserData(token);
-            Cookies.set('token', token);
+            const userData: UserData = await getUserData(token);
+            Cookies.set('userData', JSON.stringify(userData));
         }
         this.dom.closePopup("code-verification-popup");
     }
 
-    handleUsernameUpdate(event: Event) {
+    async handleUsernameUpdate(event: Event) {
         event.preventDefault();
         const form = event.target as HTMLFormElement;
-        const newName = this.dom.getFormMessage(form);
-        if (newName) {
+        const formName = this.dom.getFormMessage(form);
+        if (formName) {
             const token = Cookies.get('token');
             if (token) {
-                changeUsername(newName, token);
-                Cookies.set('username', newName);
-                getUserData(token); //проверка
+                const newName = await changeUsername(formName, token);
+                updateUserData('name', newName.name);
+                const data = JSON.parse(Cookies.get('userData') || '{}');
+                console.log(data.name);
             }
         }
         this.dom.closePopup('name-input-popup');
@@ -128,7 +130,7 @@ class ChatApp {
         this.storage.addToLocalStorage(this.messages);
     }
 
-    getDate(): string {
+    getDate(): string { //потом переместить в утилиты В ПОМОЙКУ
         const now = new Date();
         const hours = now.getHours().toString().padStart(2, '0');
         const minutes = now.getMinutes().toString().padStart(2, '0');
@@ -136,7 +138,11 @@ class ChatApp {
     }
 
     checkAuth() {
-
+        const data = JSON.parse(Cookies.get('userData') || '{}');
+        const token = data.token;
+        if (!token) {
+            this.dom.openPopup('auth-popup');
+        }
     }
 }
 
